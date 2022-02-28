@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
+
 @Service
 public class ContractService {
     private final ContractRepository contractRepo;
@@ -37,11 +39,14 @@ public class ContractService {
         return contractRepo.save(contract);
     }
 
-    /*public Mono<Void> save(){
-        return contractRepo.save();
-    }*/
-
     public Flux<Contract> getFirst2(){
         return  contractRepo.findByIdLessThanEqual();
+    }
+    public Flux<Contract> filterBySum(double sum){
+        return  contractRepo.findContractsBySumGreaterThanEqual(sum);
+    }
+
+    public Flux<Contract> filterByBeginDate(LocalDate beginDate){
+        return  contractRepo.findContractsByDateBeginGreaterThanEqual(beginDate);
     }
 }

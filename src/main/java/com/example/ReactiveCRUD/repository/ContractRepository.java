@@ -6,6 +6,8 @@ import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
+
 public interface ContractRepository extends ReactiveCrudRepository<Contract, Long> {
     Flux<Contract> findAll();
 
@@ -13,8 +15,10 @@ public interface ContractRepository extends ReactiveCrudRepository<Contract, Lon
     Flux<Contract> findByIdLessThanEqual ();
 
     Flux<Contract> findContractById(long id);
+
+    Flux<Contract> findContractsBySumGreaterThanEqual(double sum);
+    Flux<Contract> findContractsByDateBeginGreaterThanEqual(LocalDate beginDate);
     Mono<Void> deleteContractById(long id);
     Mono<Contract> save(Contract contract);
-    /*Mono<Void> save();*/
 
 }
