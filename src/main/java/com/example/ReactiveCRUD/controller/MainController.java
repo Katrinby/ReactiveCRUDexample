@@ -2,8 +2,8 @@ package com.example.ReactiveCRUD.controller;
 
 
 import com.example.ReactiveCRUD.entity.Contract;
-import com.example.ReactiveCRUD.exception.ContractNotFoundException;
-import com.example.ReactiveCRUD.service.ContractExcelExporter;
+import com.example.ReactiveCRUD.exception.CompleteDeleteMessage;
+import com.example.ReactiveCRUD.exception.CompleteUpdateMessage;
 import com.example.ReactiveCRUD.service.ContractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -11,23 +11,19 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.Duration;
+import javax.annotation.Resource;
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/ReactiveCRUD/v1/loc_contract")
 public class MainController {
+    @Resource
     private final ContractService contractService;
 
 
-    @PostMapping(/*"/"*/)
+    @PostMapping()
     public Mono<Contract> add(@RequestBody Contract contract) {
         return contractService.addOne(contract);
     }
@@ -48,20 +44,20 @@ public class MainController {
     @DeleteMapping("/{id}")
     public Mono<Void> deleteById(@PathVariable("id") Long id) {
 
-        return contractService.deleteById(id);
+        return contractService.deleteById(id).switchIfEmpty(Mono.error(new CompleteDeleteMessage()));
     }
 
     @PutMapping("/{id}")
     Mono<Contract> updateContract(@RequestBody Contract contract, @PathVariable("id") Long id) {
         contract.setId(id);
-        return contractService.saveContract(contract);
+        return contractService.saveContract(contract).switchIfEmpty(Mono.error(new CompleteUpdateMessage()));
     }
 
     @GetMapping()
     public Flux<Contract> getContract(@RequestParam(required = false)
                                       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateBegin,
                                       @RequestParam(required = false) Long count) {
-        return contractService.getContract(dateBegin, count).switchIfEmpty(Mono.error(new ContractNotFoundException()));
+        return contractService.getContract(dateBegin, count).switchIfEmpty(Mono.error(new NoSuchElementException ()));
     }
 
     @GetMapping("/sumFilter/{sum}")
